@@ -1,3 +1,8 @@
+; A sub-rotina MAIOR16 recebe em R5 o endereço de início de um vetor de palavras
+; de 16 bits (words ou W16) sem sinal e retorna:
+; R6 maior elemento do vetor e
+; R7 qual sua frequência (quantas vezes apareceu)
+
 #include "msp430.h"                     ; #define controlled include file
 
         NAME    main                    ; module name
@@ -16,9 +21,9 @@ main:   NOP                             ; main program
 
 
 PE3:    MOV #VE12,R5 ; Coloca o tamanho do vetor em R5  
-        MOV #1, R7  ;Frequência inicial = 1
+        MOV #1, R7  ; Frequência inicial = 1
         MOV #0, R6  ;
-        MOV @R5,R10 ;R10 é contador
+        MOV @R5,R10 ; R10 é contador
         DEC R10
         INCD R5
         MOV @R5,R6 ; inicialmente, R6 é o menor
