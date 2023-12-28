@@ -1,3 +1,8 @@
+; sub-rotina FIB, que armazena na mem√≥ria do MSP a partir da posi√ß√£o 0x2400 os
+; primeiros 20 n√∫meros da sequ√™ncia de Fibonacci. Representa√ß√£o de 16 bits sem sinal.
+
+
+
 #include "msp430.h"                     ; #define controlled include file
 
         NAME    main                    ; module name
@@ -15,38 +20,20 @@ main:   NOP                             ; main program
         MOV.W   #WDTPW+WDTHOLD,&WDTCTL  ; Stop watchdog timer
 
 
-PE3:    MOV #VE12,R5 ;Colocar o n˙mero 0xFFF em R5
-        MOV #1, R7  ;FrequÍncia inicial = 1
-        MOV #0, R6  ;
-        MOV @R5,R10 ;R10 È contador
-        DEC R10
-        INC R5
-        MOV.b @R5,R6 ; inicialmente, R6 È o menor
-        INC R5
-        call #MENOR
+PE3:    MOV #VE12,R5 ; Coloca o tamanho do vetor em R5  Modo absoluto? troca # por &?
+        MOV #0, R6  ; multiplos de 4
+        MOV.b #20,R10 ;R10 √© contador    ; @R5 modo indireto
+        CALL #FIB
         JMP $
 
-MENOR:
-        CMP.b @R5,R6
-        JEQ INCREMENTA ; compara se È igual
-        JGE NOVOMENOR   ;compara se R5 È menor que R6
-        JL  FINAL       ;compara se R5 È maior que R6    (JL ->Lower)
-        
-NOVOMENOR: MOV.b @R5,R6
-           MOV #1,R7
-           JMP FINAL
-           
-INCREMENTA: INC R7
-
-FINAL:  INC R5
+FIB:    MOV @R5+,R6
+        ADD @R5,R6
+        MOV R6,0x0002(R5)
         DEC R10
-        JNZ MENOR
+        JNZ FIB
         RET
         
-
-        
-        
         RSEG DATA16_N
-        VE12:   dc8 19,'2109312930123012093'                        ;dc8 .b dc16 .w
+        VE12:   dc16 1,1              ;dc8 -> .b dc16 -> .w ; Aparentemente, no IAR Workbench, declarar dc16 j√° inicia e termina o vetor com 0
         
         END

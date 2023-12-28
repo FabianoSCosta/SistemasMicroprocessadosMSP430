@@ -1,3 +1,7 @@
+;programa SW_LEDS, no qual o LED1 deve permanecer aceso enquanto a chave S1
+;estiver pressionada. O mesmo deve acontecer com o LED2 e S2.
+
+
 ;-------------------------------------------------------------------------------
 ; MSP430 Assembler Code Template for use with TI Code Composer Studio
 ;
@@ -16,46 +20,52 @@
                                             ; references to current section.
 
 ;-------------------------------------------------------------------------------
-RESET       mov.w   #__STACK_END,SP         ; Initialize stackpointer
+ RESET       mov.w   #__STACK_END,SP         ; Initialize stackpointer
 StopWDT     mov.w   #WDTPW|WDTHOLD,&WDTCTL  ; Stop watchdog timer
 
 
 ;-------------------------------------------------------------------------------
 ; Main loop here
 ;-------------------------------------------------------------------------------
-	.text
-PR1: MOV #VE,R5
-	MOV #1, R7   ;R7 é a frequência
-	MOV #0, R6   ; R6 é o menor
-	MOV.b @R5,R10 ; R10 é o tamanho do vetor
-	DEC R10
-	INC R5
-	MOV.b @R5, R6
-	INC R5
-	call #MENOR
+.text
+	BIC.b #BIT1,&P1DIR
+	BIS.b #BIT1, &P1REN
+	BIS.b #BIT1, &P1OUT
+
+	BIC.b #BIT1, &P2DIR
+	BIS.b #BIT1, &P2REN
+	BIS.b #BIT1, &P2OUT
+
+	BIS.b #BIT0, &P1DIR
+	BIC.b #BIT0, &P1OUT
+
+	BIS.b #BIT7, &P4DIR
+	BIC.b #BIT7, &P4OUT
+
+SW_LEDS:
+	BIC.b #BIT0,&P1OUT
+	BIT.b #BIT1,&P2IN
+	JNZ SW_LEDS2
+
+SW_LEDSACES:
+	BIS.b #BIT0, &P1OUT
+	BIT.b #BIT1, &P2IN
+
+SW_LEDS2:
+	BIC.b #BIT7,&P4OUT
+	BIT.b #BIT1,&P1IN
+	JNZ SW_LEDS
+
+SW_LEDSACES2:
+	BIS.b #BIT7, &P4OUT
+	BIT.b #BIT7, &P4IN
+	JZ SW_LEDSACES2
+	JMP SW_LEDS
+
+
 	JMP $
-
-MENOR:
-	CMP.b @R5,R6
-	JEQ INCREMENTA
-	JHS NOVOMENOR
-	JLO FINAL
-
-NOVOMENOR:
-	MOV.b @R5,R6
-	MOV #1, R7
-	JMP FINAL
-
-INCREMENTA: INC R7
-
-FINAL:
-	INC R5
-	DEC R10
-	JNZ MENOR
-	RET
-
-	.data
-VE: .byte 12,"FABIANOCOSTA"
+	NOP
+                                            
 
 ;-------------------------------------------------------------------------------
 ; Stack Pointer definition

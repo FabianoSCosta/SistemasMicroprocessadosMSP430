@@ -1,3 +1,6 @@
+; sub-rotina FIB16, que armazena em R10 o maior número da sequência de Fibonacci
+; a “caber” dentro da representação de 16 bits.
+
 #include "msp430.h"                     ; #define controlled include file
 
         NAME    main                    ; module name
